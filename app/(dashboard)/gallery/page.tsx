@@ -71,13 +71,13 @@ export default function GalleryPage() {
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="p-4 md:p-6">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between md:mb-6">
         <div>
-          <h1 className="text-2xl font-bold">我的图库</h1>
-          <p className="text-muted-foreground">查看您所有成功生成的作品</p>
+          <h1 className="text-xl font-bold md:text-2xl">我的图库</h1>
+          <p className="text-xs text-muted-foreground md:text-sm">查看您所有成功生成的作品</p>
         </div>
-        <Button variant="outline" onClick={fetchAllTasks}>
+        <Button variant="outline" onClick={fetchAllTasks} className="w-full sm:w-auto bg-transparent">
           <RefreshCw className="mr-2 h-4 w-4" />
           刷新
         </Button>
@@ -85,16 +85,16 @@ export default function GalleryPage() {
 
       {tasks.length === 0 ? (
         <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <div className="mb-4 rounded-full bg-muted p-4">
-              <ImageIcon className="h-8 w-8 text-muted-foreground" />
+          <CardContent className="flex flex-col items-center justify-center py-8 md:py-12">
+            <div className="mb-4 rounded-full bg-muted p-3 md:p-4">
+              <ImageIcon className="h-6 w-6 text-muted-foreground md:h-8 md:w-8" />
             </div>
-            <h3 className="mb-2 text-lg font-medium">暂无作品</h3>
-            <p className="text-sm text-muted-foreground">开始生成您的第一张AI图片吧</p>
+            <h3 className="mb-2 text-base font-medium md:text-lg">暂无作品</h3>
+            <p className="text-xs text-muted-foreground md:text-sm">开始生成您的第一张AI图片吧</p>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4">
           {tasks.map((task) => (
             <Card key={task.id} className="group overflow-hidden">
               <div className="relative aspect-square bg-muted">
@@ -108,24 +108,24 @@ export default function GalleryPage() {
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
                   <button
                     onClick={() => handleDownload(task.result_filepath, task.id)}
-                    className="rounded-full bg-white p-3 text-black hover:bg-white/90"
+                    className="rounded-full bg-white p-2 text-black hover:bg-white/90 md:p-3"
                   >
-                    <Download className="h-5 w-5" />
+                    <Download className="h-4 w-4 md:h-5 md:w-5" />
                   </button>
                 </div>
               </div>
-              <CardContent className="p-3">
+              <CardContent className="p-2 md:p-3">
                 <div className="mb-2">
                   <Badge variant="default" className="gap-1 bg-green-500 hover:bg-green-600">
                     <CheckCircle2 className="h-3 w-3" />
                     已完成
                   </Badge>
                 </div>
-                <p className="mb-2 line-clamp-2 text-sm" title={task.prompt}>
+                <p className="mb-2 line-clamp-2 text-xs md:text-sm" title={task.prompt}>
                   {task.prompt}
                 </p>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Clock className="h-3 w-3" />
+                <div className="flex items-center gap-1 text-[10px] text-muted-foreground md:text-xs">
+                  <Clock className="h-2.5 w-2.5 md:h-3 md:w-3" />
                   {formatTime(task.create_at)}
                 </div>
               </CardContent>

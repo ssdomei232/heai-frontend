@@ -58,17 +58,19 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
-            <Sparkles className="h-6 w-6 text-primary-foreground" />
+        <CardHeader className="space-y-1 text-center">
+          <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-primary md:mb-4 md:h-12 md:w-12">
+            <Sparkles className="h-5 w-5 text-primary-foreground md:h-6 md:w-6" />
           </div>
-          <CardTitle className="text-2xl">欢迎回来</CardTitle>
-          <CardDescription>登录您的 HentropyAI 账户</CardDescription>
+          <CardTitle className="text-xl md:text-2xl">欢迎回来</CardTitle>
+          <CardDescription className="text-xs md:text-sm">登录您的 HentropyAI 账户</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">用户名</Label>
+          <CardContent className="space-y-3 md:space-y-4">
+            <div className="space-y-1.5 md:space-y-2">
+              <Label htmlFor="username" className="text-sm">
+                用户名
+              </Label>
               <Input
                 id="username"
                 type="text"
@@ -76,10 +78,13 @@ export default function LoginPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 disabled={isLoading}
+                className="h-10 md:h-11"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">密码</Label>
+            <div className="space-y-1.5 md:space-y-2">
+              <Label htmlFor="password" className="text-sm">
+                密码
+              </Label>
               <Input
                 id="password"
                 type="password"
@@ -87,15 +92,16 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
+                className="h-10 md:h-11"
               />
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col gap-4">
+          <CardFooter className="flex flex-col gap-3 md:gap-4">
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               登录
             </Button>
-            <p className="text-center text-sm text-muted-foreground">
+            <p className="text-center text-xs text-muted-foreground md:text-sm">
               还没有账户？{" "}
               <Link href="/register" className="font-medium text-primary hover:underline">
                 立即注册

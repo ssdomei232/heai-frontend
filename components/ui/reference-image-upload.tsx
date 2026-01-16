@@ -106,16 +106,16 @@ export function ReferenceImageUpload({
 
   return (
     <div className={cn("space-y-3", className)}>
-      {/* 已上传的图片预览 */}
+      {/* 已上传的图片预览 - 移动端优化 */}
       {filepaths.length > 0 && (
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
           {filepaths.map((filepath, index) => (
             <div key={filepath} className="group relative aspect-square overflow-hidden rounded-lg border">
               <ImageWithAuth filepath={filepath} alt={`参考图片 ${index + 1}`} className="h-full w-full object-cover" />
               <button
                 type="button"
                 onClick={() => handleRemove(index)}
-                className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -128,18 +128,22 @@ export function ReferenceImageUpload({
       {filepaths.length < maxFiles && (
         <div
           className={cn(
-            "flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-4 transition-colors hover:border-primary hover:bg-muted/50",
+            "flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-3 transition-colors hover:border-primary hover:bg-muted/50 md:p-4",
             isUploading && "pointer-events-none opacity-50",
           )}
           onClick={() => fileInputRef.current?.click()}
         >
           {isUploading ? (
-            <Loader2 className="mb-2 h-6 w-6 animate-spin text-muted-foreground" />
+            <Loader2 className="mb-1.5 h-5 w-5 animate-spin text-muted-foreground md:mb-2 md:h-6 md:w-6" />
           ) : (
-            <Upload className="mb-2 h-6 w-6 text-muted-foreground" />
+            <Upload className="mb-1.5 h-5 w-5 text-muted-foreground md:mb-2 md:h-6 md:w-6" />
           )}
-          <span className="text-sm text-muted-foreground">{isUploading ? "上传中..." : "点击上传参考图片"}</span>
-          <span className="mt-1 text-xs text-muted-foreground">支持 JPG、PNG，最大 10MB，最多 {maxFiles} 张</span>
+          <span className="text-xs text-muted-foreground md:text-sm">
+            {isUploading ? "上传中..." : "点击上传参考图片"}
+          </span>
+          <span className="mt-0.5 text-[10px] text-muted-foreground md:mt-1 md:text-xs">
+            支持 JPG、PNG，最大 10MB，最多 {maxFiles} 张
+          </span>
         </div>
       )}
 

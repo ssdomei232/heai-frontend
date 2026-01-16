@@ -111,21 +111,21 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
+    <div className="p-4 md:p-6">
+      {/* Header - 移动端优化 */}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between md:mb-6">
         <div>
-          <h1 className="text-2xl font-bold">项目管理</h1>
-          <p className="text-muted-foreground">管理您的创作项目，每个项目可包含多个生成任务</p>
+          <h1 className="text-xl font-bold md:text-2xl">项目管理</h1>
+          <p className="text-xs text-muted-foreground md:text-sm">管理您的创作项目，每个项目可包含多个生成任务</p>
         </div>
         <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               新建项目
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="mx-4 max-w-md">
             <DialogHeader>
               <DialogTitle>创建新项目</DialogTitle>
               <DialogDescription>为您的创作取一个名字，方便管理和查找</DialogDescription>
@@ -142,11 +142,11 @@ export default function ProjectsPage() {
                 />
               </div>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+            <DialogFooter className="flex-col gap-2 sm:flex-row">
+              <Button variant="outline" onClick={() => setCreateDialogOpen(false)} className="w-full sm:w-auto">
                 取消
               </Button>
-              <Button onClick={handleCreateProject} disabled={isCreating}>
+              <Button onClick={handleCreateProject} disabled={isCreating} className="w-full sm:w-auto">
                 {isCreating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 创建
               </Button>
@@ -162,12 +162,14 @@ export default function ProjectsPage() {
         </div>
       ) : projects.length === 0 ? (
         <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <div className="mb-4 rounded-full bg-muted p-4">
-              <FolderOpen className="h-8 w-8 text-muted-foreground" />
+          <CardContent className="flex flex-col items-center justify-center py-8 md:py-12">
+            <div className="mb-4 rounded-full bg-muted p-3 md:p-4">
+              <FolderOpen className="h-6 w-6 text-muted-foreground md:h-8 md:w-8" />
             </div>
-            <h3 className="mb-2 text-lg font-medium">暂无项目</h3>
-            <p className="mb-4 text-center text-sm text-muted-foreground">创建您的第一个项目，开始AI创作之旅</p>
+            <h3 className="mb-2 text-base font-medium md:text-lg">暂无项目</h3>
+            <p className="mb-4 text-center text-xs text-muted-foreground md:text-sm">
+              创建您的第一个项目，开始AI创作之旅
+            </p>
             <Button onClick={() => setCreateDialogOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
               新建项目
@@ -175,22 +177,22 @@ export default function ProjectsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 md:gap-4 lg:grid-cols-3">
           {projects.map((project) => (
             <Card
               key={project.id}
               className="group cursor-pointer transition-shadow hover:shadow-md"
               onClick={() => router.push(`/projects/${project.id}`)}
             >
-              <CardHeader className="pb-3">
+              <CardHeader className="p-4 pb-2 md:p-6 md:pb-3">
                 <div className="flex items-start justify-between">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                    <FolderOpen className="h-5 w-5 text-primary" />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 md:h-10 md:w-10">
+                    <FolderOpen className="h-4 w-4 text-primary md:h-5 md:w-5" />
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="opacity-0 group-hover:opacity-100"
+                    className="h-8 w-8 opacity-100 md:opacity-0 md:group-hover:opacity-100"
                     onClick={(e) => {
                       e.stopPropagation()
                       setProjectToDelete(project)
@@ -200,16 +202,16 @@ export default function ProjectsPage() {
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 </div>
-                <CardTitle className="text-lg">{project.title}</CardTitle>
-                <CardDescription className="flex items-center gap-1">
+                <CardTitle className="text-base md:text-lg">{project.title}</CardTitle>
+                <CardDescription className="flex items-center gap-1 text-xs md:text-sm">
                   <Calendar className="h-3 w-3" />
                   {formatDate(project.create_at)}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="pt-0">
-                <div className="flex items-center justify-end text-sm text-primary">
+              <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
+                <div className="flex items-center justify-end text-xs text-primary md:text-sm">
                   <span>进入项目</span>
-                  <ArrowRight className="ml-1 h-4 w-4" />
+                  <ArrowRight className="ml-1 h-3.5 w-3.5 md:h-4 md:w-4" />
                 </div>
               </CardContent>
             </Card>
@@ -219,18 +221,18 @@ export default function ProjectsPage() {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="mx-4 max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle>确认删除项目？</AlertDialogTitle>
             <AlertDialogDescription>
               您即将删除项目「{projectToDelete?.title}」，此操作不可撤销，项目下的所有生成任务也将被删除。
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>取消</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+            <AlertDialogCancel className="w-full sm:w-auto">取消</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteProject}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="w-full bg-destructive text-destructive-foreground hover:bg-destructive/90 sm:w-auto"
             >
               删除
             </AlertDialogAction>

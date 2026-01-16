@@ -236,26 +236,26 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-4 md:p-6">
       {/* Welcome Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold">欢迎回来，{user?.username}</h1>
-        <p className="text-muted-foreground">使用 AI 创作精美图片，释放您的创意潜能</p>
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-xl font-bold md:text-2xl">欢迎回来，{user?.username}</h1>
+        <p className="text-sm text-muted-foreground md:text-base">使用 AI 创作精美图片，释放您的创意潜能</p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-4 md:gap-6 lg:grid-cols-3">
         {/* Main Generation Card */}
         <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+          <CardHeader className="p-4 md:p-6">
+            <CardTitle className="flex items-center gap-2 text-base md:text-lg">
               <Sparkles className="h-5 w-5 text-primary" />
               快速生成
             </CardTitle>
-            <CardDescription>输入描述，AI 将为您生成对应图片</CardDescription>
+            <CardDescription className="text-xs md:text-sm">输入描述，AI 将为您生成对应图片</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Project Selection */}
-            <div className="flex items-end gap-2">
+          <CardContent className="space-y-4 p-4 pt-0 md:p-6 md:pt-0">
+            {/* Project Selection - 移动端优化 */}
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
               <div className="flex-1 space-y-2">
                 <Label>选择项目</Label>
                 {projects.length > 0 ? (
@@ -280,7 +280,7 @@ export default function DashboardPage() {
                   </div>
                 )}
               </div>
-              <Button variant="outline" onClick={() => setCreateDialogOpen(true)}>
+              <Button variant="outline" onClick={() => setCreateDialogOpen(true)} className="w-full sm:w-auto">
                 <Plus className="mr-2 h-4 w-4" />
                 新建项目
               </Button>
@@ -308,10 +308,10 @@ export default function DashboardPage() {
               />
             </div>
 
-            {/* Options */}
-            <div className="grid gap-4 sm:grid-cols-3">
+            {/* Options - 移动端2列，桌面3列 */}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4">
               <div className="space-y-2">
-                <Label>模型</Label>
+                <Label className="text-xs md:text-sm">模型</Label>
                 <Select value={model} onValueChange={setModel}>
                   <SelectTrigger>
                     <SelectValue />
@@ -326,7 +326,7 @@ export default function DashboardPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>比例</Label>
+                <Label className="text-xs md:text-sm">比例</Label>
                 <Select value={aspectRatio} onValueChange={setAspectRatio}>
                   <SelectTrigger>
                     <SelectValue />
@@ -340,8 +340,8 @@ export default function DashboardPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label>尺寸</Label>
+              <div className="col-span-2 space-y-2 sm:col-span-1">
+                <Label className="text-xs md:text-sm">尺寸</Label>
                 <Select value={imageSize} onValueChange={setImageSize}>
                   <SelectTrigger>
                     <SelectValue />
@@ -373,36 +373,45 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Stats Card */}
-        <div className="space-y-6">
+        {/* Stats Card - 移动端全宽 */}
+        <div className="space-y-4 md:space-y-6">
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">我的账户</CardTitle>
+            <CardHeader className="p-4 pb-2 md:p-6 md:pb-3">
+              <CardTitle className="text-sm md:text-base">我的账户</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">可用积分</span>
-                <span className="text-2xl font-bold text-primary">{user?.point || 0}</span>
+                <span className="text-xs text-muted-foreground md:text-sm">可用积分</span>
+                <span className="text-xl font-bold text-primary md:text-2xl">{user?.point || 0}</span>
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center justify-between text-base">
+            <CardHeader className="p-4 pb-2 md:p-6 md:pb-3">
+              <CardTitle className="flex items-center justify-between text-sm md:text-base">
                 <span>我的项目</span>
-                <Button variant="ghost" size="sm" className="h-8" onClick={() => router.push("/projects")}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs md:h-8 md:text-sm"
+                  onClick={() => router.push("/projects")}
+                >
                   查看全部
-                  <ArrowRight className="ml-1 h-4 w-4" />
+                  <ArrowRight className="ml-1 h-3 w-3 md:h-4 md:w-4" />
                 </Button>
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
               {projects.length === 0 ? (
                 <div className="flex flex-col items-center py-4 text-center">
-                  <FolderOpen className="mb-2 h-8 w-8 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">暂无项目</p>
-                  <Button variant="link" className="mt-2" onClick={() => setCreateDialogOpen(true)}>
+                  <FolderOpen className="mb-2 h-6 w-6 text-muted-foreground md:h-8 md:w-8" />
+                  <p className="text-xs text-muted-foreground md:text-sm">暂无项目</p>
+                  <Button
+                    variant="link"
+                    className="mt-2 h-auto p-0 text-xs md:text-sm"
+                    onClick={() => setCreateDialogOpen(true)}
+                  >
                     创建第一个项目
                   </Button>
                 </div>
@@ -414,11 +423,11 @@ export default function DashboardPage() {
                       className="flex cursor-pointer items-center gap-2 rounded-lg p-2 hover:bg-accent"
                       onClick={() => router.push(`/projects/${project.id}`)}
                     >
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-primary/10">
-                        <FolderOpen className="h-4 w-4 text-primary" />
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-primary/10 md:h-8 md:w-8">
+                        <FolderOpen className="h-3.5 w-3.5 text-primary md:h-4 md:w-4" />
                       </div>
-                      <span className="flex-1 truncate text-sm">{project.title}</span>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                      <span className="flex-1 truncate text-xs md:text-sm">{project.title}</span>
+                      <ArrowRight className="h-3.5 w-3.5 text-muted-foreground md:h-4 md:w-4" />
                     </div>
                   ))}
                 </div>
@@ -428,17 +437,22 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Recent Tasks */}
+      {/* Recent Tasks - 移动端优化网格 */}
       {selectedProject && recentTasks.length > 0 && (
-        <div className="mt-8">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">最近生成</h2>
-            <Button variant="outline" size="sm" onClick={() => router.push(`/projects/${selectedProject}`)}>
+        <div className="mt-6 md:mt-8">
+          <div className="mb-3 flex items-center justify-between md:mb-4">
+            <h2 className="text-base font-semibold md:text-lg">最近生成</h2>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs md:text-sm bg-transparent"
+              onClick={() => router.push(`/projects/${selectedProject}`)}
+            >
               查看全部
-              <ArrowRight className="ml-1 h-4 w-4" />
+              <ArrowRight className="ml-1 h-3.5 w-3.5 md:h-4 md:w-4" />
             </Button>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-6">
             {recentTasks.map((task) => (
               <Card key={task.id} className="overflow-hidden">
                 <div className="aspect-square bg-muted">
@@ -450,21 +464,21 @@ export default function DashboardPage() {
                     />
                   ) : task.status === "running" ? (
                     <div className="flex h-full items-center justify-center">
-                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      <Loader2 className="h-5 w-5 animate-spin text-primary md:h-6 md:w-6" />
                     </div>
                   ) : (
                     <div className="flex h-full items-center justify-center">
-                      <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                      <ImageIcon className="h-5 w-5 text-muted-foreground md:h-6 md:w-6" />
                     </div>
                   )}
                 </div>
                 <CardContent className="p-2">
                   <div className="mb-1">{getStatusBadge(task.status)}</div>
-                  <p className="line-clamp-1 text-xs text-muted-foreground" title={task.prompt}>
+                  <p className="line-clamp-1 text-[10px] text-muted-foreground md:text-xs" title={task.prompt}>
                     {task.prompt}
                   </p>
-                  <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                    <Clock className="h-3 w-3" />
+                  <div className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground md:text-xs">
+                    <Clock className="h-2.5 w-2.5 md:h-3 md:w-3" />
                     {formatTime(task.create_at)}
                   </div>
                 </CardContent>
@@ -476,7 +490,7 @@ export default function DashboardPage() {
 
       {/* Create Project Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <DialogContent>
+        <DialogContent className="mx-4 max-w-md">
           <DialogHeader>
             <DialogTitle>创建新项目</DialogTitle>
             <DialogDescription>为您的创作取一个名字，方便管理和查找</DialogDescription>
@@ -493,11 +507,11 @@ export default function DashboardPage() {
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+          <DialogFooter className="flex-col gap-2 sm:flex-row">
+            <Button variant="outline" onClick={() => setCreateDialogOpen(false)} className="w-full sm:w-auto">
               取消
             </Button>
-            <Button onClick={handleCreateProject} disabled={isCreating}>
+            <Button onClick={handleCreateProject} disabled={isCreating} className="w-full sm:w-auto">
               {isCreating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               创建
             </Button>

@@ -5,7 +5,7 @@ import type React from "react"
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/components/providers/auth-provider"
-import { Sidebar } from "@/components/layout/sidebar"
+import { DesktopSidebar, MobileHeader } from "@/components/layout/sidebar"
 import { Loader2 } from "lucide-react"
 
 export default function DashboardLayout({
@@ -35,8 +35,9 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
+    <div className="flex h-screen flex-col overflow-hidden md:flex-row">
+      <MobileHeader />
+      <DesktopSidebar />
       <main className="flex-1 overflow-auto bg-muted/30">{children}</main>
     </div>
   )
