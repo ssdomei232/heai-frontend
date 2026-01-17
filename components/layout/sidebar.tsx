@@ -11,7 +11,7 @@ import { Home, FolderOpen, User, LogOut, Sparkles, ChevronLeft, ChevronRight, Im
 import { useState } from "react"
 
 const navItems = [
-  { href: "/dashboard", label: "首页", icon: Home },
+  { href: "/", label: "首页", icon: Home },
   { href: "/projects", label: "项目管理", icon: FolderOpen },
   { href: "/gallery", label: "我的图库", icon: ImageIcon },
   { href: "/profile", label: "个人信息", icon: User },
@@ -93,7 +93,7 @@ export function DesktopSidebar() {
       {/* Logo */}
       <div className="flex h-16 items-center justify-between border-b px-4">
         {!collapsed && (
-          <Link href="/dashboard" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
               <Sparkles className="h-4 w-4 text-primary-foreground" />
             </div>
@@ -120,7 +120,7 @@ export function MobileHeader() {
 
   return (
     <header className="flex h-14 items-center justify-between border-b bg-card px-4 md:hidden">
-      <Link href="/dashboard" className="flex items-center gap-2">
+      <Link href="/" className="flex items-center gap-2">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
           <Sparkles className="h-4 w-4 text-primary-foreground" />
         </div>
@@ -135,7 +135,7 @@ export function MobileHeader() {
         </SheetTrigger>
         <SheetContent side="left" className="flex w-64 flex-col p-0">
           <div className="flex h-14 items-center border-b px-4">
-            <Link href="/dashboard" className="flex items-center gap-2" onClick={() => setOpen(false)}>
+            <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                 <Sparkles className="h-4 w-4 text-primary-foreground" />
               </div>

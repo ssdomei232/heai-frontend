@@ -11,7 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ImageWithAuth } from "@/components/ui/image-with-auth"
+import { VideoWithAuth } from "@/components/ui/video-with-auth"
 import { ReferenceImageUpload } from "@/components/ui/reference-image-upload"
 import {
   ArrowLeft,
@@ -24,16 +26,19 @@ import {
   RefreshCw,
   Download,
   SlidersHorizontal,
+  Video,
+  Film,
+  Play,
 } from "lucide-react"
 import { fileApi } from "@/lib/api"
 
-const MODELS = [
+const IMAGE_MODELS = [
   { value: "nano-banana-fast", label: "快速模式", description: "速度最快，适合快速预览" },
   { value: "nano-banana", label: "标准模式", description: "平衡速度与质量" },
   { value: "nano-banana-pro", label: "专业模式", description: "最高质量，适合最终出图" },
 ]
 
-const ASPECT_RATIOS = [
+const IMAGE_ASPECT_RATIOS = [
   { value: "auto", label: "自动" },
   { value: "1:1", label: "1:1 方形" },
   { value: "16:9", label: "16:9 横屏" },
@@ -48,6 +53,21 @@ const IMAGE_SIZES = [
   { value: "4K", label: "4K" },
 ]
 
+const VIDEO_ASPECT_RATIOS = [
+  { value: "16:9", label: "16:9 横屏" },
+  { value: "9:16", label: "9:16 竖屏" },
+]
+
+const VIDEO_DURATIONS = [
+  { value: 10, label: "10秒" },
+  { value: 15, label: "15秒" },
+]
+
+const VIDEO_SIZES = [
+  { value: "small", label: "标清", description: "480p" },
+  { value: "large", label: "高清", description: "1080p" },
+]
+
 export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
   const projectId = Number.parseInt(resolvedParams.id)
@@ -60,12 +80,22 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [isGenerating, setIsGenerating] = useState(false)
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false)
 
-  // Form state
+  const [generateType, setGenerateType] = useState<"image" | "video">("image")
+  const [filterType, setFilterType] = useState<"all" | "image" | "video">("all")
+
+  // Image Form state
   const [prompt, setPrompt] = useState("")
   const [model, setModel] = useState("nano-banana-fast")
   const [aspectRatio, setAspectRatio] = useState("auto")
   const [imageSize, setImageSize] = useState("1K")
   const [referenceFilepaths, setReferenceFilepaths] = useState<string[]>([])
+
+  const [videoPrompt, setVideoPrompt] = useState("")
+  const [videoAspectRatio, setVideoAspectRatio] = useState<"16:9" | "9:16">("16:9")
+  const [videoDuration, setVideoDuration] = useState<10 | 15>(10)
+  const [videoSize, setVideoSize] = useState<"small" | "large">("large")
+  const [videoFilepath, setVideoFilepath] = useState("")
+  const [remixTargetID, setRemixTargetID] = useState("")
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -115,7 +145,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     }
   }, [tasks, fetchTasks])
 
-  const handleGenerate = async () => {
+  const handleGenerateImage = async () => {
     if (!prompt.trim()) {
       showToast({ title: "请输入提示词", type: "error" })
       return
@@ -148,12 +178,48 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     }
   }
 
-  const handleDownload = async (filepath: string, filename: string) => {
+  const handleGenerateVideo = async () => {
+    if (!videoPrompt.trim()) {
+      showToast({ title: "请输入提示词", type: "error" })
+      return
+    }
+
+    setIsGenerating(true)
     try {
-      const blobUrl = await fileApi.fetchImage(filepath)
+      const response = await generateApi.video({
+        prompt: videoPrompt.trim(),
+        model: "sora-2",
+        aspectRatio: videoAspectRatio,
+        duration: videoDuration,
+        filepath: videoFilepath,
+        remixTargetID: remixTargetID,
+        size: videoSize,
+        project_id: projectId,
+      })
+
+      if (response.code === 200) {
+        showToast({ title: "视频任务创建成功", description: "正在生成中...", type: "success" })
+        setVideoPrompt("")
+        setVideoFilepath("")
+        setRemixTargetID("")
+        setMobileSheetOpen(false)
+        fetchTasks()
+      } else {
+        showToast({ title: "生成失败", description: response.data, type: "error" })
+      }
+    } catch {
+      showToast({ title: "网络错误", description: "请稍后重试", type: "error" })
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  const handleDownload = async (filepath: string, filename: string, isVideo = false) => {
+    try {
+      const blobUrl = isVideo ? await fileApi.fetchVideo(filepath) : await fileApi.fetchImage(filepath)
       const link = document.createElement("a")
       link.href = blobUrl
-      link.download = filename || "image.png"
+      link.download = filename
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -161,6 +227,18 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     } catch {
       showToast({ title: "下载失败", type: "error" })
     }
+  }
+
+  const handleUseAsVideoReference = (filepath: string) => {
+    setVideoFilepath(filepath)
+    setGenerateType("video")
+    showToast({ title: "已选择参考图", description: "已切换到视频生成模式", type: "success" })
+  }
+
+  const handleUseAsVideoSequel = (pid: string) => {
+    setRemixTargetID(pid)
+    setGenerateType("video")
+    showToast({ title: "已选择续作视频", description: "新视频将基于此视频继续生成", type: "success" })
   }
 
   const getStatusBadge = (status: string) => {
@@ -195,7 +273,18 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     return new Date(timestamp * 1000).toLocaleString("zh-CN")
   }
 
-  const GenerateForm = () => (
+  const filteredTasks = tasks.filter((task) => {
+    if (filterType === "all") return true
+    return task.category === filterType
+  })
+
+  const successfulImageTasks = tasks.filter(
+    (t) => t.category === "image" && t.status === "succeeded" && t.result_filepath,
+  )
+
+  const successfulVideoTasks = tasks.filter((t) => t.category === "video" && t.status === "succeeded" && t.sora2_pid)
+
+  const ImageGenerateForm = () => (
     <div className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="prompt">提示词</Label>
@@ -220,7 +309,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {MODELS.map((m) => (
+            {IMAGE_MODELS.map((m) => (
               <SelectItem key={m.value} value={m.value}>
                 <div>
                   <div>{m.label}</div>
@@ -239,7 +328,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {ASPECT_RATIOS.map((ar) => (
+            {IMAGE_ASPECT_RATIOS.map((ar) => (
               <SelectItem key={ar.value} value={ar.value}>
                 {ar.label}
               </SelectItem>
@@ -264,7 +353,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         </Select>
       </div>
 
-      <Button className="w-full" onClick={handleGenerate} disabled={isGenerating}>
+      <Button className="w-full" onClick={handleGenerateImage} disabled={isGenerating}>
         {isGenerating ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -278,6 +367,178 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         )}
       </Button>
     </div>
+  )
+
+  const VideoGenerateForm = () => (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="videoPrompt">提示词</Label>
+        <Textarea
+          id="videoPrompt"
+          placeholder="描述您想要生成的视频..."
+          value={videoPrompt}
+          onChange={(e) => setVideoPrompt(e.target.value)}
+          rows={4}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>参考图片（可选）</Label>
+        {videoFilepath ? (
+          <div className="relative rounded-lg border p-2">
+            <div className="flex items-center gap-2">
+              <ImageWithAuth filepath={videoFilepath} alt="参考图" className="h-16 w-16 rounded object-cover" />
+              <div className="flex-1 truncate text-sm">{videoFilepath.split("/").pop()}</div>
+              <Button variant="ghost" size="sm" onClick={() => setVideoFilepath("")}>
+                移除
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <ReferenceImageUpload
+              filepaths={videoFilepath ? [videoFilepath] : []}
+              onFilepathsChange={(paths) => setVideoFilepath(paths[0] || "")}
+              maxFiles={1}
+            />
+            {successfulImageTasks.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">或选择已生成的图片：</p>
+                <div className="grid grid-cols-4 gap-2">
+                  {successfulImageTasks.slice(0, 8).map((task) => (
+                    <button
+                      key={task.id}
+                      onClick={() => setVideoFilepath(task.result_filepath!)}
+                      className="relative aspect-square overflow-hidden rounded border hover:ring-2 hover:ring-primary"
+                    >
+                      <ImageWithAuth
+                        filepath={task.result_filepath!}
+                        alt={task.prompt}
+                        className="h-full w-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {successfulVideoTasks.length > 0 && (
+        <div className="space-y-2">
+          <Label>续作视频（可选）</Label>
+          {remixTargetID ? (
+            <div className="flex items-center justify-between rounded-lg border p-2">
+              <span className="truncate text-sm">已选择: {remixTargetID}</span>
+              <Button variant="ghost" size="sm" onClick={() => setRemixTargetID("")}>
+                移除
+              </Button>
+            </div>
+          ) : (
+            <Select value={remixTargetID} onValueChange={setRemixTargetID}>
+              <SelectTrigger>
+                <SelectValue placeholder="选择一个视频作为前作" />
+              </SelectTrigger>
+              <SelectContent>
+                {successfulVideoTasks.map((task) => (
+                  <SelectItem key={task.id} value={task.sora2_pid!}>
+                    <div className="truncate">{task.prompt.slice(0, 30)}...</div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          <p className="text-xs text-muted-foreground">选择后新视频将作为该视频的续作</p>
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <Label htmlFor="videoAspectRatio">比例</Label>
+        <Select value={videoAspectRatio} onValueChange={(v) => setVideoAspectRatio(v as "16:9" | "9:16")}>
+          <SelectTrigger id="videoAspectRatio">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {VIDEO_ASPECT_RATIOS.map((ar) => (
+              <SelectItem key={ar.value} value={ar.value}>
+                {ar.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="videoDuration">时长</Label>
+        <Select value={String(videoDuration)} onValueChange={(v) => setVideoDuration(Number(v) as 10 | 15)}>
+          <SelectTrigger id="videoDuration">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {VIDEO_DURATIONS.map((d) => (
+              <SelectItem key={d.value} value={String(d.value)}>
+                {d.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="videoSize">清晰度</Label>
+        <Select value={videoSize} onValueChange={(v) => setVideoSize(v as "small" | "large")}>
+          <SelectTrigger id="videoSize">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {VIDEO_SIZES.map((size) => (
+              <SelectItem key={size.value} value={size.value}>
+                <div>
+                  <div>{size.label}</div>
+                  <div className="text-xs text-muted-foreground">{size.description}</div>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Button className="w-full" onClick={handleGenerateVideo} disabled={isGenerating}>
+        {isGenerating ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            生成中...
+          </>
+        ) : (
+          <>
+            <Video className="mr-2 h-4 w-4" />
+            开始生成视频
+          </>
+        )}
+      </Button>
+    </div>
+  )
+
+  const GenerateForm = () => (
+    <Tabs value={generateType} onValueChange={(v) => setGenerateType(v as "image" | "video")} className="w-full">
+      <TabsList className="mb-4 grid w-full grid-cols-2">
+        <TabsTrigger value="image" className="gap-2">
+          <ImageIcon className="h-4 w-4" />
+          图片
+        </TabsTrigger>
+        <TabsTrigger value="video" className="gap-2">
+          <Video className="h-4 w-4" />
+          视频
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent value="image">
+        <ImageGenerateForm />
+      </TabsContent>
+      <TabsContent value="video">
+        <VideoGenerateForm />
+      </TabsContent>
+    </Tabs>
   )
 
   if (isLoading) {
@@ -319,7 +580,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <SheetHeader className="mb-4">
                 <SheetTitle className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4" />
-                  图片生成
+                  创作中心
                 </SheetTitle>
               </SheetHeader>
               <GenerateForm />
@@ -335,7 +596,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <div>
               <h2 className="mb-3 flex items-center gap-2 font-semibold">
                 <Sparkles className="h-4 w-4" />
-                图片生成
+                创作中心
               </h2>
             </div>
             <GenerateForm />
@@ -344,38 +605,54 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
         {/* Right Panel - Task List */}
         <div className="flex-1 overflow-auto p-4 md:p-6">
-          <div className="mb-3 flex items-center justify-between md:mb-4">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2 md:mb-4">
             <h2 className="text-base font-semibold md:text-lg">生成记录</h2>
-            <Button variant="outline" size="sm" className="h-8 bg-transparent" onClick={fetchTasks}>
-              <RefreshCw className="mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
-              刷新
-            </Button>
+            <div className="flex items-center gap-2">
+              <Select value={filterType} onValueChange={(v) => setFilterType(v as "all" | "image" | "video")}>
+                <SelectTrigger className="h-8 w-24 bg-transparent">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">全部</SelectItem>
+                  <SelectItem value="image">图片</SelectItem>
+                  <SelectItem value="video">视频</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="outline" size="sm" className="h-8 bg-transparent" onClick={fetchTasks}>
+                <RefreshCw className="mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
+                刷新
+              </Button>
+            </div>
           </div>
 
-          {tasks.length === 0 ? (
+          {filteredTasks.length === 0 ? (
             <Card className="border-dashed">
               <CardContent className="flex flex-col items-center justify-center py-8 md:py-12">
                 <div className="mb-4 rounded-full bg-muted p-3 md:p-4">
-                  <ImageIcon className="h-6 w-6 text-muted-foreground md:h-8 md:w-8" />
+                  <Film className="h-6 w-6 text-muted-foreground md:h-8 md:w-8" />
                 </div>
                 <h3 className="mb-2 text-base font-medium md:text-lg">暂无生成记录</h3>
                 <p className="text-xs text-muted-foreground md:text-sm">
                   <span className="hidden md:inline">在左侧</span>
-                  <span className="md:hidden">点击上方生成按钮</span>输入提示词，开始您的第一次创作
+                  <span className="md:hidden">点击上方生成按钮</span>选择图片或视频，开始您的创作
                 </p>
               </CardContent>
             </Card>
           ) : (
             <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-3">
-              {tasks.map((task) => (
+              {filteredTasks.map((task) => (
                 <Card key={task.id} className="overflow-hidden">
                   <div className="aspect-square bg-muted">
                     {task.status === "succeeded" && task.result_filepath ? (
-                      <ImageWithAuth
-                        filepath={task.result_filepath}
-                        alt={task.prompt}
-                        className="h-full w-full object-cover"
-                      />
+                      task.category === "video" ? (
+                        <VideoWithAuth filepath={task.result_filepath} className="h-full w-full object-cover" />
+                      ) : (
+                        <ImageWithAuth
+                          filepath={task.result_filepath}
+                          alt={task.prompt}
+                          className="h-full w-full object-cover"
+                        />
+                      )
                     ) : task.status === "running" ? (
                       <div className="flex h-full items-center justify-center">
                         <Loader2 className="h-6 w-6 animate-spin text-primary md:h-8 md:w-8" />
@@ -388,10 +665,31 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                   </div>
                   <CardContent className="p-2 md:p-3">
                     <div className="mb-2 flex items-center justify-between">
-                      {getStatusBadge(task.status)}
+                      <div className="flex items-center gap-1">
+                        {getStatusBadge(task.status)}
+                        <Badge variant="outline" className="gap-1">
+                          {task.category === "video" ? (
+                            <>
+                              <Video className="h-2.5 w-2.5" />
+                              视频
+                            </>
+                          ) : (
+                            <>
+                              <ImageIcon className="h-2.5 w-2.5" />
+                              图片
+                            </>
+                          )}
+                        </Badge>
+                      </div>
                       {task.status === "succeeded" && task.result_filepath && (
                         <button
-                          onClick={() => handleDownload(task.result_filepath, `image-${task.id}.png`)}
+                          onClick={() =>
+                            handleDownload(
+                              task.result_filepath!,
+                              `${task.category}-${task.id}.${task.category === "video" ? "mp4" : "png"}`,
+                              task.category === "video",
+                            )
+                          }
                           className="text-primary hover:underline"
                         >
                           <Download className="h-4 w-4" />
@@ -407,6 +705,32 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     </div>
                     {task.status === "failed" && task.failure_reason && (
                       <p className="mt-2 text-[10px] text-destructive md:text-xs">{task.failure_reason}</p>
+                    )}
+                    {task.status === "succeeded" && (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {task.category === "image" && task.result_filepath && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-6 text-[10px] md:h-7 md:text-xs bg-transparent"
+                            onClick={() => handleUseAsVideoReference(task.result_filepath!)}
+                          >
+                            <Play className="mr-1 h-3 w-3" />
+                            生成视频
+                          </Button>
+                        )}
+                        {task.category === "video" && task.sora2_pid && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-6 text-[10px] md:h-7 md:text-xs bg-transparent"
+                            onClick={() => handleUseAsVideoSequel(task.sora2_pid!)}
+                          >
+                            <Film className="mr-1 h-3 w-3" />
+                            生成续作
+                          </Button>
+                        )}
+                      </div>
                     )}
                   </CardContent>
                 </Card>

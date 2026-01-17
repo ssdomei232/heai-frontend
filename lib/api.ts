@@ -139,6 +139,23 @@ export const generateApi = {
     })
     return response.json()
   },
+
+  video: async (params: {
+    prompt: string
+    model: "sora-2"
+    aspectRatio: "16:9" | "9:16"
+    duration: 10 | 15
+    filepath: string
+    remixTargetID: string
+    size: "small" | "large"
+    project_id: number
+  }) => {
+    const response = await fetchWithCsrf("/v1/generate/video", {
+      method: "POST",
+      body: JSON.stringify(params),
+    })
+    return response.json()
+  },
 }
 
 // 文件相关 API
@@ -183,6 +200,18 @@ export const fileApi = {
     const blob = await response.blob()
     return URL.createObjectURL(blob)
   },
+
+  fetchVideo: async (filepath: string): Promise<string> => {
+    const response = await fetch(`${API_BASE_URL}/v1/file?f=${encodeURIComponent(filepath)}`, {
+      method: "GET",
+      credentials: "include",
+    })
+    if (!response.ok) {
+      throw new Error("获取视频失败")
+    }
+    const blob = await response.blob()
+    return URL.createObjectURL(blob)
+  },
 }
 
 // 类型定义
@@ -210,9 +239,10 @@ export interface Task {
   model: string
   prompt: string
   reference_image_filepaths: string
-  category: string
-  result_filepath: string
+  category: "image" | "video"
+  result_filepath: string | null
   status: "running" | "succeeded" | "failed"
   failure_reason: string | null
   error: string | null
+  sora2_pid: string | null
 }
