@@ -33,9 +33,9 @@ import {
 import { fileApi } from "@/lib/api"
 
 const IMAGE_MODELS = [
-  { value: "nano-banana-fast", label: "快速模式", description: "速度最快，适合快速预览" },
-  { value: "nano-banana", label: "标准模式", description: "平衡速度与质量" },
-  { value: "nano-banana-pro", label: "专业模式", description: "最高质量，适合最终出图" },
+  { value: "nano-banana-fast", label: "nano-banana-fast", description: "速度最快，适合快速预览" },
+  { value: "nano-banana", label: "nano-banana", description: "平衡速度与质量" },
+  { value: "nano-banana-pro", label: "nano-banana-pro", description: "最高质量，适合最终出图" },
 ]
 
 const IMAGE_ASPECT_RATIOS = [
