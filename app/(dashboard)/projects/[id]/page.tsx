@@ -82,6 +82,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
   const [generateType, setGenerateType] = useState<"image" | "video">("image")
   const [filterType, setFilterType] = useState<"all" | "image" | "video">("all")
+  
+  // 添加卡片大小状态
+  const [cardSize, setCardSize] = useState<"sm" | "md" | "lg">("md")
 
   // Image Form state
   const [prompt, setPrompt] = useState("")
@@ -618,6 +621,19 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                   <SelectItem value="video">视频</SelectItem>
                 </SelectContent>
               </Select>
+              
+              {/* 卡片大小选择器 */}
+              <Select value={cardSize} onValueChange={(v) => setCardSize(v as "sm" | "md" | "lg")}>
+                <SelectTrigger className="h-8 w-24 bg-transparent">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sm">小卡片</SelectItem>
+                  <SelectItem value="md">中卡片</SelectItem>
+                  <SelectItem value="lg">大卡片</SelectItem>
+                </SelectContent>
+              </Select>
+              
               <Button variant="outline" size="sm" className="h-8 bg-transparent" onClick={fetchTasks}>
                 <RefreshCw className="mr-2 h-3.5 w-3.5 md:h-4 md:w-4" />
                 刷新
@@ -639,10 +655,23 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-3">
+            // 根据卡片大小设置不同的网格列数
+            <div className={
+              cardSize === "sm" 
+                ? "grid grid-cols-3 gap-2 md:gap-3 lg:grid-cols-4 xl:grid-cols-6" 
+                : cardSize === "md" 
+                  ? "grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-3" 
+                  : "grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-2"
+            }>
               {filteredTasks.map((task) => (
                 <Card key={task.id} className="overflow-hidden">
-                  <div className="aspect-square bg-muted">
+                  <div className={
+                    cardSize === "sm" 
+                      ? "aspect-square bg-muted" 
+                      : cardSize === "md" 
+                        ? "aspect-square bg-muted" 
+                        : "aspect-square bg-muted"
+                  }>
                     {task.status === "succeeded" && task.result_filepath ? (
                       task.category === "video" ? (
                         <VideoWithAuth filepath={task.result_filepath} className="h-full w-full object-cover" />
@@ -664,7 +693,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     )}
                   </div>
                   <CardContent className="p-2 md:p-3">
-                    <div className="mb-2 flex items-center justify-between">
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
                         {getStatusBadge(task.status)}
                         <Badge variant="outline" className="gap-1">
@@ -681,20 +710,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                           )}
                         </Badge>
                       </div>
-                      {task.status === "succeeded" && task.result_filepath && (
-                        <button
-                          onClick={() =>
-                            handleDownload(
-                              task.result_filepath!,
-                              `${task.category}-${task.id}.${task.category === "video" ? "mp4" : "png"}`,
-                              task.category === "video",
-                            )
-                          }
-                          className="text-primary hover:underline"
-                        >
-                          <Download className="h-4 w-4" />
-                        </button>
-                      )}
+                      {/* 移除了原来的下载图标按钮 */}
                     </div>
                     <p className="mb-2 line-clamp-2 text-xs md:text-sm" title={task.prompt}>
                       {task.prompt}
@@ -704,7 +720,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                       {formatTime(task.create_at)}
                     </div>
                     {task.status === "failed" && task.failure_reason && (
-                      <p className="mt-2 text-[10px] text-destructive md:text-xs">{task.failure_reason}</p>
+                      <p className="mt-2 text-[10px] text-destructive md:text-xs">{task.error}</p>
                     )}
                     {task.status === "succeeded" && (
                       <div className="mt-2 flex flex-wrap gap-1">
@@ -712,7 +728,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-6 text-[10px] md:h-7 md:text-xs bg-transparent"
+                            className={`h-6 text-[10px] md:h-7 ${
+                              cardSize === "sm" ? "text-[8px] px-1" : "md:text-xs"
+                            } bg-transparent`}
                             onClick={() => handleUseAsVideoReference(task.result_filepath!)}
                           >
                             <Play className="mr-1 h-3 w-3" />
@@ -723,11 +741,33 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-6 text-[10px] md:h-7 md:text-xs bg-transparent"
+                            className={`h-6 text-[10px] md:h-7 ${
+                              cardSize === "sm" ? "text-[8px] px-1" : "md:text-xs"
+                            } bg-transparent`}
                             onClick={() => handleUseAsVideoSequel(task.sora2_pid!)}
                           >
                             <Film className="mr-1 h-3 w-3" />
                             生成续作
+                          </Button>
+                        )}
+                        {/* 添加下载按钮 */}
+                        {task.result_filepath && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={`h-6 text-[10px] md:h-7 ${
+                              cardSize === "sm" ? "text-[8px] px-1" : "md:text-xs"
+                            } bg-transparent`}
+                            onClick={() =>
+                              handleDownload(
+                                task.result_filepath!,
+                                `${task.category}-${task.id}.${task.category === "video" ? "mp4" : "png"}`,
+                                task.category === "video",
+                              )
+                            }
+                          >
+                            <Download className="mr-1 h-3 w-3" />
+                            下载
                           </Button>
                         )}
                       </div>
