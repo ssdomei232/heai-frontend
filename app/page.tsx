@@ -3,43 +3,25 @@
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Sparkles, Zap, ImageIcon, Palette, ArrowRight, Check, Menu } from "lucide-react"
+import { Sparkles, Zap, ImageIcon, Palette, ArrowRight, Check, Menu, Github } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useState } from "react"
 
 const FEATURES = [
   {
+    icon: ImageIcon,
+    title: "素材管理",
+    description: "集中管理所有AIGC生成的素材",
+  },
+  {
     icon: Zap,
-    title: "快速生成",
-    description: "使用先进的 AI 模型，几秒钟内生成高质量图片",
+    title: "智能搜索",
+    description: "通过关键词快速找到您需要的素材资源",
   },
   {
     icon: Palette,
-    title: "多种风格",
-    description: "支持各种艺术风格，从写实到抽象，满足不同创作需求",
-  },
-  {
-    icon: ImageIcon,
-    title: "参考图生成",
-    description: "上传参考图片，AI 将基于您的风格进行创作",
-  },
-]
-
-const PRICING = [
-  {
-    name: "快速模式",
-    points: 10,
-    description: "速度最快，适合快速预览",
-  },
-  {
-    name: "标准模式",
-    points: 20,
-    description: "平衡速度与质量",
-  },
-  {
-    name: "专业模式",
-    points: 50,
-    description: "最高质量，适合最终出图",
+    title: "简单易用",
+    description: "界面简洁直观，无需复杂学习即可快速上手",
   },
 ]
 
@@ -56,7 +38,7 @@ export default function LandingPage() {
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary md:h-8 md:w-8">
               <Sparkles className="h-3.5 w-3.5 text-primary-foreground md:h-4 md:w-4" />
             </div>
-            <span className="text-base font-bold md:text-lg">HentropyAI</span>
+            <span className="text-base font-bold md:text-lg">HEAI</span>
           </div>
 
           {/* 桌面端导航 */}
@@ -108,24 +90,23 @@ export default function LandingPage() {
       <section className="py-12 md:py-20">
         <div className="mx-auto max-w-6xl px-4 text-center">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border bg-muted px-3 py-1 text-xs md:mb-4 md:px-4 md:py-1.5 md:text-sm">
-            <Sparkles className="h-3.5 w-3.5 text-primary md:h-4 md:w-4" />
-            AI 驱动的创意平台
+            <Github className="h-3.5 w-3.5 text-primary md:h-4 md:w-4" />
+            开源项目
           </div>
           <h1 className="mb-4 text-balance text-2xl font-bold tracking-tight sm:text-3xl md:mb-6 md:text-4xl lg:text-5xl xl:text-6xl">
-            用 AI 释放你的
-            <span className="text-primary">创意潜能</span>
+            开源的<span className="text-primary">AIGC素材管理</span>工具
           </h1>
           <p className="mx-auto mb-6 max-w-2xl text-pretty text-sm text-muted-foreground md:mb-8 md:text-base lg:text-lg">
-            HentropyAI 是一个强大的 AI 图片生成平台，只需输入文字描述，即可在几秒钟内生成精美图片。支持参考图片上传，让
-            AI 更好地理解您的创意。
+            HEAI是一个功能强大的AIGC素材管理平台，帮助您高效组织、检索和利用AI生成的内容。支持多种文件格式，提供智能标签和分类系统。
           </p>
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center md:gap-4">
             <Button size="lg" onClick={() => router.push("/register")} className="w-full sm:w-auto">
-              开始创作
+              开始使用
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-            <Button size="lg" variant="outline" onClick={() => router.push("/login")} className="w-full sm:w-auto">
-              已有账号？登录
+            <Button size="lg" variant="outline" onClick={() => window.open('https://github.com/ssdomei232/heai-backend', '_blank')}>
+              <Github className="mr-2 h-4 w-4" />
+              访问GitHub
             </Button>
           </div>
         </div>
@@ -135,8 +116,8 @@ export default function LandingPage() {
       <section className="border-y bg-muted/30 py-12 md:py-20">
         <div className="mx-auto max-w-6xl px-4">
           <div className="mb-8 text-center md:mb-12">
-            <h2 className="mb-2 text-xl font-bold md:mb-4 md:text-2xl lg:text-3xl">强大功能</h2>
-            <p className="text-xs text-muted-foreground md:text-sm lg:text-base">简单易用，功能强大，让创作变得轻松</p>
+            <h2 className="mb-2 text-xl font-bold md:mb-4 md:text-2xl lg:text-3xl">核心功能</h2>
+            <p className="text-xs text-muted-foreground md:text-sm lg:text-base">简单易用，功能强大，让素材管理变得轻松</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6">
             {FEATURES.map((feature) => (
@@ -154,62 +135,45 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing Section - 移动端优化 */}
-      <section className="py-12 md:py-20">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="mb-8 text-center md:mb-12">
-            <h2 className="mb-2 text-xl font-bold md:mb-4 md:text-2xl lg:text-3xl">积分消耗</h2>
-            <p className="text-xs text-muted-foreground md:text-sm lg:text-base">按需使用，灵活选择适合您的生成模式</p>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6">
-            {PRICING.map((plan) => (
-              <Card key={plan.name} className="relative overflow-hidden">
-                <CardContent className="p-4 md:pt-6">
-                  <h3 className="mb-1.5 text-base font-semibold md:mb-2 md:text-lg">{plan.name}</h3>
-                  <div className="mb-3 md:mb-4">
-                    <span className="text-2xl font-bold text-primary md:text-3xl">{plan.points}</span>
-                    <span className="text-xs text-muted-foreground md:text-sm"> 积分/张</span>
-                  </div>
-                  <p className="mb-3 text-xs text-muted-foreground md:mb-4 md:text-sm">{plan.description}</p>
-                  <ul className="space-y-1.5 text-xs md:space-y-2 md:text-sm">
-                    <li className="flex items-center gap-2">
-                      <Check className="h-3.5 w-3.5 text-primary md:h-4 md:w-4" />
-                      高质量图片输出
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="h-3.5 w-3.5 text-primary md:h-4 md:w-4" />
-                      支持多种比例
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="h-3.5 w-3.5 text-primary md:h-4 md:w-4" />
-                      参考图片上传
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section - 移动端优化 */}
       <section className="border-t bg-muted/30 py-12 md:py-20">
         <div className="mx-auto max-w-6xl px-4 text-center">
-          <h2 className="mb-2 text-xl font-bold md:mb-4 md:text-2xl lg:text-3xl">准备好开始创作了吗？</h2>
+          <h2 className="mb-2 text-xl font-bold md:mb-4 md:text-2xl lg:text-3xl">加入开源社区</h2>
           <p className="mb-6 text-xs text-muted-foreground md:mb-8 md:text-sm lg:text-base">
-            注册即可获得免费积分，立即体验 AI 创作的魅力
+            立即访问我们的GitHub仓库，参与项目开发或体验Demo
           </p>
-          <Button size="lg" onClick={() => router.push("/register")} className="w-full sm:w-auto">
-            免费注册，开始创作
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center md:gap-4">
+            <Button size="lg" onClick={() => router.push("/register")} className="w-full sm:w-auto">
+              创建账户，体验Demo
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+            <Button 
+              size="lg" 
+              variant="outline" 
+              onClick={() => window.open('https://github.com/ssdomei232/heai-backend', '_blank')}
+              className="w-full sm:w-auto"
+            >
+              <Github className="mr-2 h-4 w-4" />
+              GitHub仓库
+            </Button>
+          </div>
         </div>
       </section>
 
       {/* Footer - 移动端优化 */}
       <footer className="border-t py-6 md:py-8">
         <div className="mx-auto max-w-6xl px-4 text-center text-xs text-muted-foreground md:text-sm">
-          <p>&copy; {new Date().getFullYear()} HentropyAI. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} HEAI. 开源AIGC素材管理工具</p>
+          <p className="mt-1">
+            <Button 
+              variant="link" 
+              onClick={() => window.open('https://github.com/ssdomei232/heai-backend', '_blank')}
+              className="h-auto p-0 text-xs text-muted-foreground md:text-sm"
+            >
+              <Github className="mr-1 h-3 w-3" />
+              Github
+            </Button>
+          </p>
         </div>
       </footer>
     </div>
